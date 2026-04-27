@@ -62,3 +62,25 @@ HTML versions are included in `docs/` for teams that prefer browser-readable doc
 - `itemKey` is deterministic: `keccak256(packedRef)`.
 - `npm audit --omit=dev` is expected to be clean.
 - Full `npm audit` may include dev-tool advisories from upstream Hardhat dependencies.
+
+## Sepolia Testnet Proof
+
+Deployed contract (Sepolia):
+
+- `0x30D70706BF257ae5cB96E9dB14Be3eA4bd16431D`
+
+Smoke-tested lifecycle on Sepolia using protocol scripts:
+
+1. Deploy contract
+2. `createGallery`
+3. `addItem`
+4. `updateItemFields`
+5. `removeItem`
+6. `readGallery` verification before/after remove
+
+Recommended for reviewers:
+
+- Verify the contract address and lifecycle transactions on Sepolia Etherscan.
+- Confirm post-remove state:
+  - `getItemStatus(galleryId, itemKey)` returns `isActive = false`
+  - `getGalleryItems(galleryId)` excludes removed item keys
