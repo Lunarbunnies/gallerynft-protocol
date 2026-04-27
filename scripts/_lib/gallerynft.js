@@ -1,8 +1,8 @@
-import hre from "hardhat";
+import { network } from "hardhat";
 import { requireArg } from "./args.js";
 
 export async function loadGalleryContract(args) {
-  const { ethers } = hre;
+  const { ethers } = await network.getOrCreate();
   const contractAddress = requireArg(args, "contract", "Missing --contract <GalleryNFT address>");
   const gallery = await ethers.getContractAt("GalleryNFT", contractAddress);
   return { ethers, gallery, contractAddress };

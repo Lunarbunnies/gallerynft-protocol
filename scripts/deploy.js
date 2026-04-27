@@ -1,8 +1,8 @@
-import hre from "hardhat";
+import { network } from "hardhat";
 import { parseArgs } from "./_lib/args.js";
 
 async function main() {
-  const { ethers } = hre;
+  const { ethers } = await network.getOrCreate();
   const args = parseArgs(process.argv.slice(2));
 
   const name = String(args.name || "On-Chain Curated Galleries");

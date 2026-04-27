@@ -36,7 +36,13 @@ async function main() {
     });
   }
 
-  console.log(JSON.stringify(output, null, 2));
+  console.log(
+    JSON.stringify(
+      output,
+      (_key, value) => (typeof value === "bigint" ? value.toString() : value),
+      2
+    )
+  );
 }
 
 main().catch((error) => {
