@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GalleryNFT Integration Guide</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+      }
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      h1, h2 {
+        line-height: 1.2;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>GalleryNFT Integration Guide (For Existing Apps)</h1>
+      <p>This guide is for teams who already have their own app and only need the protocol basics.</p>
+
+      <h2>Where This Belongs</h2>
+      <p>Protocol-level integration docs should live in <code>gallerynft-protocol</code>.</p>
+      <ol>
+        <li>It is the canonical source for contract interface and events.</li>
+        <li>App repos can change UX stack, but contract integration rules should stay stable.</li>
+        <li>Third-party integrators can onboard without reading app internals.</li>
+      </ol>
+
+      <h2>Minimal Integration Flow</h2>
+      <ol>
+        <li>Connect user wallet (EOA or smart account).</li>
+        <li>Instantiate <code>GalleryNFT</code> at known address using ABI from this repo.</li>
+        <li>For writes, call contract methods with user signature.</li>
+        <li>For reads, call <code>getGallery*</code> and <code>getItem*</code> view methods.</li>
+        <li>Optionally index events into a cache for fast browsing.</li>
+      </ol>
+
+      <h2>Canonical Writes</h2>
+      <ol>
+        <li><code>createGallery(title, description)</code></li>
+        <li><code>setGalleryFields(galleryId, title, description)</code></li>
+        <li><code>addItem(galleryId, packedRef, displayOrder, label, note)</code></li>
+        <li><code>updateItemFields(galleryId, itemKey, displayOrder, label, note)</code></li>
+        <li><code>removeItem(galleryId, itemKey)</code></li>
+      </ol>
+      <p>All writes are owner/approved-gated by ERC-721 auth.</p>
+
+      <h2>Canonical Reads</h2>
+      <ol>
+        <li><code>ownerOf(galleryId)</code></li>
+        <li><code>getGallery(galleryId)</code></li>
+        <li><code>getGalleryFields(galleryId)</code></li>
+        <li><code>getGalleryItems(galleryId)</code></li>
+        <li><code>getItem(galleryId, itemKey)</code></li>
+        <li><code>getItemFields(galleryId, itemKey)</code></li>
+        <li><code>getItemPackedRef(galleryId, itemKey)</code></li>
+        <li><code>getItemStatus(galleryId, itemKey)</code></li>
+        <li><code>getItems(galleryId, itemKeys[])</code></li>
+        <li><code>getItemFieldsBatch(galleryId, itemKeys[])</code></li>
+      </ol>
+
+      <h2>PackedRef + itemKey</h2>
+      <p><code>itemKey = keccak256(packedRef)</code>.</p>
+      <p>Current packed kinds:</p>
+      <ol>
+        <li>EVM (<code>kind=0</code>): chainId + 20-byte contract + tokenId</li>
+        <li>Tezos (<code>kind=1</code>): tezosNet + 20-byte contract hash + tokenId</li>
+      </ol>
+      <p>Use <code>scripts/packedRefTool.js</code> for deterministic encoding/decoding examples.</p>
+
+      <h2>Reference Utility Scripts</h2>
+      <ol>
+        <li><code>scripts/deploy.js</code></li>
+        <li><code>scripts/createGallery.js</code></li>
+        <li><code>scripts/setGalleryFields.js</code></li>
+        <li><code>scripts/addItem.js</code></li>
+        <li><code>scripts/updateItemFields.js</code></li>
+        <li><code>scripts/removeItem.js</code></li>
+        <li><code>scripts/readGallery.js</code></li>
+        <li><code>scripts/packedRefTool.js</code></li>
+      </ol>
+      <p>These scripts are reference examples. Production frontends should call the same methods directly from user wallet sessions.</p>
+
+      <h2>Frontend Snippets (ethers v6)</h2>
+      <p>Install:</p>
+      <pre><code>npm install ethers</code></pre>
+
+      <p>Load ABI from this repo's compiled artifact (<code>artifacts/contracts/GalleryNFT.sol/GalleryNFT.json</code>), then:</p>
+      <pre><code>import { BrowserProvider, Contract } from "ethers";
+import galleryArtifact from "./GalleryNFT.json";
+
+const provider = new BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
+const gallery = new Contract(
+  "0xYourGalleryNFTAddress",
+  galleryArtifact.abi,
+  signer
+);</code></pre>
+
+      <p>Write example:</p>
+      <pre><code>const tx = await gallery.createGallery("My Gallery", "Curated works");
+await tx.wait();</code></pre>
+
+      <p>Read example:</p>
+      <pre><code>const [title, description, createdAt, updatedAt, owner] = await gallery.getGallery(1n);
+const itemKeys = await gallery.getGalleryItems(1n);</code></pre>
+
+      <p>Add EVM item example (packed ref built off-chain):</p>
+      <pre><code>const packedRef = "0x..."; // kind=0 encoding
+const tx = await gallery.addItem(1n, packedRef, 10, "Label", "Curator note");
+await tx.wait();</code></pre>
+
+      <p>Security notes:</p>
+      <ol>
+        <li>Never use a backend private key for user-owned galleries.</li>
+        <li>Always send writes from the connected wallet.</li>
+        <li>Treat indexer/database as cache; on-chain contract state is canonical.</li>
+      </ol>
+    </main>
+  </body>
+</html>

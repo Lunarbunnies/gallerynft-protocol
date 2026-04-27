@@ -1,0 +1,29 @@
+{
+  "name": "gallerynft-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GalleryNFT protocol contracts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "script:deploy": "hardhat run scripts/deploy.js",
+    "script:create-gallery": "hardhat run scripts/createGallery.js",
+    "script:set-gallery-fields": "hardhat run scripts/setGalleryFields.js",
+    "script:add-item": "hardhat run scripts/addItem.js",
+    "script:update-item-fields": "hardhat run scripts/updateItemFields.js",
+    "script:remove-item": "hardhat run scripts/removeItem.js",
+    "script:read-gallery": "hardhat run scripts/readGallery.js",
+    "script:packed-ref": "node scripts/packedRefTool.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.4",
+    "dotenv": "^16.4.5",
+    "hardhat": "^3.4.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.6"
+  }
+}

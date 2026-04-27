@@ -1,0 +1,21 @@
+# Build and tool artifacts
+artifacts/
+cache/
+typechain-types/
+types/
+out/
+coverage/
+node_modules/
+*.tsbuildinfo
+.openzeppelin/
+ignition/deployments/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
